@@ -24,8 +24,10 @@ class Invoice implements XmlSerializable
     private $paymentTerms;
     private $accountingSupplierParty;
     private $accountingCustomerParty;
+    private $accountingCustomerPartyContact;
     private $payeeParty;
     private $supplierAssignedAccountID;
+    /** @var PaymentMeans[] $paymentMeans */
     private $paymentMeans;
     private $taxTotal;
     private $legalMonetaryTotal;
@@ -33,10 +35,12 @@ class Invoice implements XmlSerializable
     protected $invoiceLines;
     private $allowanceCharges;
     private $additionalDocumentReferences = [];
+    private $projectReference;
     private $documentCurrencyCode = 'EUR';
     private $buyerReference;
     private $accountingCostCode;
     private $invoicePeriod;
+    private $billingReference;
     private $delivery;
     private $orderReference;
     private $contractDocumentReference;
@@ -290,6 +294,24 @@ class Invoice implements XmlSerializable
     }
 
     /**
+     * @return ?Contact
+     */
+    public function getAccountingCustomerPartyContact(): ?Contact
+    {
+        return $this->accountingCustomerPartyContact;
+    }
+
+    /**
+     * @param Contact $accountingCustomerPartyContact
+     * @return Invoice
+     */
+    public function setAccountingCustomerPartyContact(Contact $accountingCustomerPartyContact): Invoice
+    {
+        $this->accountingCustomerPartyContact = $accountingCustomerPartyContact;
+        return $this;
+    }
+
+    /**
      * @return Party
      */
     public function getPayeeParty(): ?Party
@@ -308,18 +330,18 @@ class Invoice implements XmlSerializable
     }
 
     /**
-     * @return PaymentMeans
+     * @return PaymentMeans[]
      */
-    public function getPaymentMeans(): ?PaymentMeans
+    public function getPaymentMeans(): ?array
     {
         return $this->paymentMeans;
     }
 
     /**
-     * @param PaymentMeans $paymentMeans
+     * @param PaymentMeans[] $paymentMeans
      * @return Invoice
      */
-    public function setPaymentMeans(PaymentMeans $paymentMeans): Invoice
+    public function setPaymentMeans(array $paymentMeans): Invoice
     {
         $this->paymentMeans = $paymentMeans;
         return $this;
@@ -445,6 +467,24 @@ class Invoice implements XmlSerializable
     }
 
     /**
+     * @param ProjectReference $projectReference
+     * @return Invoice
+     */
+    public function setProjectReference(ProjectReference $projectReference): Invoice
+    {
+        $this->projectReference = $projectReference;
+        return $this;
+    }
+
+      /**
+     * @return ProjectReference projectReference
+     */
+    public function getProjectReference(): ?ProjectReference
+    {
+        return $this->projectReference;
+    }
+
+    /**
      * @param string $buyerReference
      * @return Invoice
      */
@@ -499,6 +539,27 @@ class Invoice implements XmlSerializable
     }
 
     /**
+     * Get the reference to the invoice that is being credited
+     *
+     * @return ?BillingReference
+     */
+    public function getBillingReference(): ?BillingReference
+    {
+        return $this->billingReference;
+    }
+
+    /**
+     * Set the reference to the invoice that is being credited
+     *
+     * @return CreditNote
+     */
+    public function setBillingReference($billingReference): CreditNote
+    {
+        $this->billingReference = $billingReference;
+        return $this;
+    }
+
+    /**
      * @return Delivery
      */
     public function getDelivery(): ?Delivery
@@ -526,7 +587,7 @@ class Invoice implements XmlSerializable
 
     /**
      * @param OrderReference $orderReference
-     * @return OrderReference
+     * @return Invoice
      */
     public function setOrderReference(OrderReference $orderReference): Invoice
     {
@@ -675,6 +736,12 @@ class Invoice implements XmlSerializable
             ]);
         }
 
+        if ($this->billingReference != null) {
+            $writer->write([
+                Schema::CAC . 'BillingReference' => $this->billingReference
+            ]);
+        }
+
         if ($this->contractDocumentReference !== null) {
             $writer->write([
                 Schema::CAC . 'ContractDocumentReference' => $this->contractDocumentReference,
@@ -689,19 +756,20 @@ class Invoice implements XmlSerializable
             }
         }
 
-        if ($this->supplierAssignedAccountID !== null) {
-            $customerParty = [
-                Schema::CBC . 'SupplierAssignedAccountID' => $this->supplierAssignedAccountID,
-                Schema::CAC . "Party" => $this->accountingCustomerParty
-            ];
-        } else {
-            $customerParty = [
-                Schema::CAC . "Party" => $this->accountingCustomerParty
-            ];
+        if ($this->projectReference != null) {
+            $writer->write([
+                Schema::CAC . 'ProjectReference' => $this->projectReference
+            ]);
         }
 
+        $customerParty = array_filter([
+            Schema::CBC . 'SupplierAssignedAccountID' => $this->supplierAssignedAccountID,
+            Schema::CAC . 'Party' => $this->accountingCustomerParty,
+            Schema::CAC . 'AccountingContact' => $this->accountingCustomerPartyContact,
+        ]);
+
         $writer->write([
-            Schema::CAC . 'AccountingSupplierParty' => [Schema::CAC . "Party" => $this->accountingSupplierParty],
+            Schema::CAC . 'AccountingSupplierParty' => [Schema::CAC . 'Party' => $this->accountingSupplierParty],
             Schema::CAC . 'AccountingCustomerParty' => $customerParty,
         ]);
 
@@ -718,9 +786,11 @@ class Invoice implements XmlSerializable
         }
 
         if ($this->paymentMeans !== null) {
-            $writer->write([
-                Schema::CAC . 'PaymentMeans' => $this->paymentMeans
-            ]);
+            foreach($this->paymentMeans as $paymentMeans) {
+                $writer->write([
+                    Schema::CAC . $paymentMeans->xmlTagName => $paymentMeans
+                ]);
+            }
         }
 
         if ($this->paymentTerms !== null) {

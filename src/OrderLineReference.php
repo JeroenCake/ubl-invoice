@@ -3,15 +3,16 @@
 namespace NumNum\UBL;
 
 use Sabre\Xml\Writer;
+use InvalidArgumentException;
 use Sabre\Xml\XmlSerializable;
 
-use InvalidArgumentException;
-
+/**
+ * @see https://docs.peppol.eu/poacc/billing/3.0/syntax/ubl-invoice/cac-InvoiceLine/cac-OrderLineReference/
+ */
 class OrderLineReference implements XmlSerializable
 {
     private $lineId;
     private $salesOrderLine;
-
 
     /**
      * The validate function that is called during xml writing to valid the data of the object.
@@ -21,6 +22,9 @@ class OrderLineReference implements XmlSerializable
      */
     public function validate()
     {
+        if ($this->lineId === null) {
+            throw new InvalidArgumentException('Missing OrderLineReference LineID');
+        }
     }
 
     /**
@@ -62,11 +66,13 @@ class OrderLineReference implements XmlSerializable
      * @param Writer $writer
      * @return void
      */
+
     public function xmlSerialize(Writer $writer): void
     {
         $this->validate();
 
         $writer->write([
+            Schema::CBC . 'LineID' => $this->lineId,
             [
                 'name' => Schema::CBC . 'LineID',
                 'value' => $this->lineId,

@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * Test an UBL2.1 invoice document
  */
-class SimpleInvoiceTest extends TestCase
+class SimpleInvoiceWithFilePathPdfTest extends TestCase
 {
     private $schema = 'http://docs.oasis-open.org/ubl/os-UBL-2.1/xsd/maindoc/UBL-Invoice-2.1.xsd';
 
@@ -126,9 +126,16 @@ class SimpleInvoiceTest extends TestCase
             ->addTaxSubTotal($taxSubTotal)
             ->setTaxAmount(2.1);
 
+        $attachment = (new \NumNum\UBL\Attachment())
+            ->setFilePath(__DIR__.DIRECTORY_SEPARATOR.'SampleInvoice.pdf');
+
+        $additionalDocumentReference = (new \NumNum\UBL\AdditionalDocumentReference())
+            ->setAttachment($attachment);
+
         // Invoice object
         $invoice = (new \NumNum\UBL\Invoice())
             ->setId(1234)
+            ->setAdditionalDocumentReference($additionalDocumentReference)
             ->setCopyIndicator(false)
             ->setIssueDate(new \DateTime())
             ->setAccountingSupplierParty($supplierCompany)
@@ -148,7 +155,7 @@ class SimpleInvoiceTest extends TestCase
         $dom = new \DOMDocument;
         $dom->loadXML($outputXMLString);
 
-        $dom->save('./tests/SimpleInvoiceTest.xml');
+        $dom->save('./tests/SimpleInvoiceWithFilePathPdfTest.xml');
 
         $this->assertEquals(true, $dom->schemaValidate($this->schema));
     }

@@ -15,12 +15,14 @@ class InvoiceLine implements XmlSerializable
     private $unitCodeListId;
     private $taxTotal;
     private $invoicePeriod;
+    private $orderLineReference;
     private $note;
     private $item;
     private $price;
     private $accountingCostCode;
     private $accountingCost;
-    private $orderLineReference;
+    /** @var AllowanceCharge[] $allowanceCharges */
+    private $allowanceCharges;
 
     // See CreditNoteLine.php
     protected $isCreditNoteLine = false;
@@ -134,6 +136,24 @@ class InvoiceLine implements XmlSerializable
     }
 
     /**
+     * @return string
+     */
+    public function getOrderLineReference(): ?OrderLineReference
+    {
+        return $this->orderLineReference;
+    }
+
+    /**
+     * @param ?string $orderLineReference
+     * @return OrderLineReference
+     */
+    public function setOrderLineReference(?OrderLineReference $orderLineReference): InvoiceLine
+    {
+        $this->orderLineReference = $orderLineReference;
+        return $this;
+    }
+
+    /**
      * @return Item
      */
     public function getItem(): ?Item
@@ -241,15 +261,21 @@ class InvoiceLine implements XmlSerializable
         return $this;
     }
 
-    public function getOrderLineReference(): ?OrderLineReference
+    /**
+     * @return AllowanceCharge[]
+     */
+    public function getAllowanceCharges(): ?array
     {
-        return $this->orderLineReference;
+        return $this->allowanceCharges;
     }
 
-    public function setOrderLineReference(?OrderLineReference $orderLineReference): InvoiceLine
+    /**
+     * @param AllowanceCharge[] $allowanceCharges
+     * @return InvoiceLine
+     */
+    public function setAllowanceCharges(array $allowanceCharges): InvoiceLine
     {
-        $this->orderLineReference = $orderLineReference;
-
+        $this->allowanceCharges = $allowanceCharges;
         return $this;
     }
 
@@ -279,18 +305,17 @@ class InvoiceLine implements XmlSerializable
         }
 
         $writer->write([
-            [
-                'name' => Schema::CBC .
-                    ($this->isCreditNoteLine ? 'CreditedQuantity' : 'InvoicedQuantity'),
-                'value' => number_format($this->invoicedQuantity, 2, '.', ''),
-                'attributes' => $invoicedQuantityAttributes
-            ],
-            [
-                'name' => Schema::CBC . 'LineExtensionAmount',
-                'value' => number_format($this->lineExtensionAmount, 2, '.', ''),
-                'attributes' => [
-                    'currencyID' => Generator::$currencyID
-                ]
+            'name' => Schema::CBC .
+                ($this->isCreditNoteLine ? 'CreditedQuantity' : 'InvoicedQuantity'),
+            'value' => NumberFormatter::format($this->invoicedQuantity),
+            'attributes' => $invoicedQuantityAttributes
+        ]);
+
+        $writer->write([
+            'name' => Schema::CBC . 'LineExtensionAmount',
+            'value' => NumberFormatter::format($this->lineExtensionAmount ?? 0, 2),
+            'attributes' => [
+                'currencyID' => Generator::$currencyID
             ]
         ]);
 
@@ -314,6 +339,15 @@ class InvoiceLine implements XmlSerializable
                 Schema::CAC . 'OrderLineReference' => $this->orderLineReference
             ]);
         }
+
+        if ($this->allowanceCharges !== null) {
+            foreach ($this->allowanceCharges as $allowanceCharge) {
+                $writer->write([
+                    Schema::CAC . 'AllowanceCharge' => $allowanceCharge
+                ]);
+            }
+        }
+
         if ($this->taxTotal !== null) {
             $writer->write([
                 Schema::CAC . 'TaxTotal' => $this->taxTotal

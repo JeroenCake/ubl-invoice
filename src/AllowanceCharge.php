@@ -71,18 +71,18 @@ class AllowanceCharge implements XmlSerializable
     }
 
     /**
-     * @return int
+     * @return float
      */
-    public function getMultiplierFactorNumeric(): ?int
+    public function getMultiplierFactorNumeric(): ?float
     {
         return $this->multiplierFactorNumeric;
     }
 
     /**
-     * @param int $multiplierFactorNumeric
+     * @param float $multiplierFactorNumeric
      * @return AllowanceCharge
      */
-    public function setMultiplierFactorNumeric(?int $multiplierFactorNumeric): AllowanceCharge
+    public function setMultiplierFactorNumeric(?float $multiplierFactorNumeric): AllowanceCharge
     {
         $this->multiplierFactorNumeric = $multiplierFactorNumeric;
         return $this;
@@ -186,19 +186,31 @@ class AllowanceCharge implements XmlSerializable
 
         if ($this->multiplierFactorNumeric !== null) {
             $writer->write([
-                Schema::CBC . 'MultiplierFactorNumeric' => $this->multiplierFactorNumeric
+                Schema::CBC . 'MultiplierFactorNumeric' => NumberFormatter::format($this->baseAmount)
             ]);
         }
 
         $writer->write([
             [
                 'name' => Schema::CBC . 'Amount',
-                'value' => $this->amount,
+                'value' => NumberFormatter::format($this->amount, 2),
                 'attributes' => [
                     'currencyID' => Generator::$currencyID
                 ]
             ],
         ]);
+
+        if ($this->baseAmount !== null) {
+            $writer->write([
+                [
+                    'name' => Schema::CBC . 'BaseAmount',
+                    'value' => NumberFormatter::format($this->baseAmount, 2),
+                    'attributes' => [
+                        'currencyID' => Generator::$currencyID
+                    ]
+                ]
+            ]);
+        }
 
         if ($this->taxCategory !== null) {
             $writer->write([
@@ -209,18 +221,6 @@ class AllowanceCharge implements XmlSerializable
         if ($this->taxTotal !== null) {
             $writer->write([
                 Schema::CAC . 'TaxTotal' => $this->taxTotal
-            ]);
-        }
-
-        if ($this->baseAmount !== null) {
-            $writer->write([
-                [
-                    'name' => Schema::CBC . 'BaseAmount',
-                    'value' => $this->baseAmount,
-                    'attributes' => [
-                        'currencyID' => Generator::$currencyID
-                    ]
-                ]
             ]);
         }
     }

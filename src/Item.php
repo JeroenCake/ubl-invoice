@@ -12,6 +12,8 @@ class Item implements XmlSerializable
     private $buyersItemIdentification;
     private $sellersItemIdentification;
     private $standardItemIdentification;
+    private $standardItemIdentificationAttributes = [];
+    private $commodityClassification;
     private $classifiedTaxCategory;
 
     /**
@@ -80,9 +82,30 @@ class Item implements XmlSerializable
      * @param mixed $standardItemIdentification
      * @return Item
      */
-    public function setStandardItemIdentification(?string $standardItemIdentification): Item
+    public function setStandardItemIdentification(?string $standardItemIdentification, $attributes = null): Item
     {
         $this->standardItemIdentification = $standardItemIdentification;
+        if (isset($attributes)) {
+            $this->standardItemIdentificationAttributes = $attributes;
+        }
+        return $this;
+    }
+
+    /**
+     * @return CommodityClassification
+     */
+    public function getCommodityClassification(): ?CommodityClassification
+    {
+        return $this->commodityClassification;
+    }
+
+    /**
+     * @param mixed $commodityClassification
+     * @return Item
+     */
+    public function setCommodityClassification(CommodityClassification $commodityClassification): Item
+    {
+        $this->commodityClassification = $commodityClassification;
         return $this;
     }
 
@@ -159,14 +182,23 @@ class Item implements XmlSerializable
         if (!empty($this->getStandardItemIdentification())) {
             $writer->write([
                 Schema::CAC . 'StandardItemIdentification' => [
-                    Schema::CBC . 'ID' => $this->standardItemIdentification
-                ],
+                    Schema::CBC . 'ID' => [
+                    'value' => $this->standardItemIdentification,
+                    'attributes' => $this->standardItemIdentificationAttributes
+                    ]
+                ]
+            ]);
+        }
+
+        if (!empty($this->getCommodityClassification())) {
+            $writer->write([
+                Schema::CAC . 'CommodityClassification' => $this->commodityClassification
             ]);
         }
 
         if (!empty($this->getClassifiedTaxCategory())) {
             $writer->write([
-                Schema::CAC . 'ClassifiedTaxCategory' => $this->getClassifiedTaxCategory()
+                Schema::CAC . 'ClassifiedTaxCategory' => $this->classifiedTaxCategory
             ]);
         }
     }

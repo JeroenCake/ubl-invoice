@@ -2,7 +2,10 @@
 
 namespace NumNum\UBL;
 
-class CreditNote extends Invoice
+use Sabre\Xml\Writer;
+use Sabre\Xml\XmlSerializable;
+
+class CreditNote extends Invoice implements XmlSerializable
 {
     public $xmlTagName = 'CreditNote';
     protected $invoiceTypeCode = InvoiceTypeCode::CREDIT_NOTE;

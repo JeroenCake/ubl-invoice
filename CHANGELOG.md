@@ -1,3 +1,96 @@
+# Changelog for v1.21.3
+
+#### Bug fixes
+
+- Don't round `<cac:Price> <cbc:PriceAmount>` to two decimals
+
+# Changelog for v1.21.2
+
+#### Bug fixes
+
+- <cbc:MultiplierFactorNumeric> in AllowanceCharge should not crash when the system uses localized number output
+- documentTypeCode in AdditionalDocumentReference should not be limited to int values - Thanks [@tgeorgel](https://github.com/tgeorgel)
+
+# Changelog for v1.21.1
+
+#### Bug fixes
+
+- <cac:Price> <cbc:PriceAmount> should not be rounded to zero decimals
+
+# Changelog for v1.21.0
+
+### New features & improvements
+
+- Add missing ICD Code list. See also https://docs.peppol.eu/poacc/billing/3.0/codelist/ICD/
+- Make <cac:ClassifiedTaxCategory> <cbc:Percent> optional - Thanks [@chipco](https://github.com/chipco)
+- Add <cac:AccountingContact> to <Invoice> - Thanks [@tgeorgel](https://github.com/tgeorgel)
+- Add <cbc:ID> to <cac:Contact> - Thanks [@tgeorgel](https://github.com/tgeorgel)
+- Allow both <cbc:DocumentTypeCode> and <cbc:DocumentType> to be present in <cac:AdditionalDocumentReference> - Thanks [@tgeorgel](https://github.com/tgeorgel)
+
+# Changelog for v1.20.0
+
+### New features & improvements
+
+- General change: don't round numbers to two decimals, always use the amount of provided decimals
+
+# Changelog for v1.19.1
+
+### New features & improvements
+
+- Add `<cbc:PayableRoundingAmount />` to `<cac:LegalMonetaryTotal>` - Thanks [@ronaldsgailis](https://github.com/ronaldsgailis)
+
+# Changelog for v1.19.0
+
+### New features & improvements
+
+- Add `<cac:CommodityClassification />` to `<cac:Item>`
+-
+# Changelog for v1.18.2
+
+### New features & improvements
+
+- Add `<cac:ProjectReference />` to `<Invoice>`
+
+#### Bug fixes
+
+- Fix Amount, BaseAmount, TaxCategory tag sort in `<cac:AllowanceCharge />`
+- Fix parameter type for `<cac:AllowanceCharge>` on `<cac:InvoiceLine>` to array
+
+# Changelog for v1.18.1
+
+#### Bug fixes
+
+- Fix Creditnote `<cac:BillingReference>` validation issues, this tag should be optional
+
+# Changelog for 1.18.0
+
+### New features & improvements
+
+- Support for `<cav:Item>` `<cac:StandardItemIdentification>` --> `cbc:IDPeppol` Scheme identifier - Thanks [@dragonfly4](https://github.com/dragonfly4)
+- Support to add `<cac:Attachment>` content without having to use an external file ref but by adding it as a fileStream/fileContents - Thanks [@dietercoopman](https://github.com/dietercoopman), [@bagulho](https://github.com/bagulho)
+- Add `<cbc:CompanyLegalForm>` to `<cac:PartyLegalEntity>` - Thanks [@vsadrn](https://github.com/vsadrn)
+- Improved `UNCL4461` support for `<cac:PaymentMeans>` - Thanks [@TSimkus](https://github.com/TSimkus), [@TecsiAron](https://github.com/TecsiAron)
+- Add `<cac:OrderLineReference>` support for `<cac:InvoiceLine>` - Thanks [@TSimkus](https://github.com/TSimkus)
+- Add `<cac:AllowanceCharge>` to `<cac:InvoiceLine>` - Thanks [@TSimkus](https://github.com/TSimkus)
+- Add support for `<cac:BillingReference>` in Creditnotes - Thanks [@UlusoftConsultancy](https://github.com/UlusoftConsultancy)
+- Add `<cbc:ChargeTotalAmount>` to `<cac:LegalMonetaryTotal>` - Thanks [@Quazz](https://github.com/Quazz)
+- Add support for TaxExemptionReason and TaxExemptionReasonCode to `<cac:ClassifiedTaxCategory>` - Thanks [@bagulho](https://github.com/bagulho)
+
+### Breaking changes
+
+- Add support to include multiple `PaymentMeans` - Thanks [@Quazz](https://github.com/Quazz)
+
+#### Bug fixes
+
+- Fix `InvoiceTypeCode` documentation dead link - Thanks [@TSimkus](https://github.com/TSimkus)
+- Changed `<cbc:MultiplierFactorNumeric />` type from `int` to `float` - Thanks [@TSimkus](https://github.com/TSimkus)
+
+# Changelog for version 1.17.0
+
+### New features & improvements
+
+- Add list of `VatExemptionCode` options
+
 # Changelog for version 1.16.0
 
 ### New features & improvements
@@ -62,8 +155,8 @@
 - Added `DocumentDescription` in `AdditionalDocumentReference` - Thanks [@JorisDebonnet](https://github.com/JorisDebonnet)
 - Added `ExternalReference` (`URI`) as an alternative for an `EmbeddedDocumentBinaryObject` in `Attachment` - Thanks [@JorisDebonnet](https://github.com/JorisDebonnet)
 - Fixed the appearing order of `Name` and `Percent` in `ClassifiedTaxCategory` - Thanks [@JorisDebonnet](https://github.com/JorisDebonnet)
-- Added `ProfileID` to `Invoice`  - Thanks [@JorisDebonnet](https://github.com/JorisDebonnet)
-- Added support for multiple `AdditionalDocumentReference` children to `Invoice`  - Thanks [@JorisDebonnet](https://github.com/JorisDebonnet)
+- Added `ProfileID` to `Invoice` - Thanks [@JorisDebonnet](https://github.com/JorisDebonnet)
+- Added support for multiple `AdditionalDocumentReference` children to `Invoice` - Thanks [@JorisDebonnet](https://github.com/JorisDebonnet)
 - Made `Description` optional in `Item` - Thanks [@JorisDebonnet](https://github.com/JorisDebonnet)
 - Added `EndpointID` to `Party` - Thanks [@JorisDebonnet](https://github.com/JorisDebonnet)
 - Made `PartyName` optional in `Party` - Thanks [@JorisDebonnet](https://github.com/JorisDebonnet)
