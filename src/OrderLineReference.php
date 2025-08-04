@@ -72,7 +72,6 @@ class OrderLineReference implements XmlSerializable
         $this->validate();
 
         $writer->write([
-            Schema::CBC . 'LineID' => $this->lineId,
             [
                 'name' => Schema::CBC . 'LineID',
                 'value' => $this->lineId,
